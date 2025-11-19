@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐸КВА Кликер😎</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --primary-color: #8A2BE2;
+            --secondary-color: #4B0082;
+            --accent-color: #FFD700;
+            --background-color: #1a1a2e;
+            --card-color: #16213e;
+            --text-color: #ffffff;
+            --success-color: #00ff88;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--background-color), #138a37);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: 60px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px 20px;
+            background: rgba(8, 177, 93, 0.26);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(22, 173, 30, 0.274);
+        }
+
+        header h1 {
+            font-size: 2.2em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #89ff6b, #904ecd);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .score-container {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: var(--card-color);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(3, 61, 13, 0.979);
+        }
+
+        .score-label {
+            font-size: 1.1em;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .score {
+            font-size: 3.5em;
+            font-weight: bold;
+            color: var(--accent-color);
+            text-shadow: 0 0 20px rgba(13, 142, 146, 0.527);
+        }
+
+        .click-area {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .click-button {
+            width: 220px;
+            height: 220px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #9ACD32, #7CFC00) !important;
+            color: white !important;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 50px rgba(154, 205, 50, 0.6) !important;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 0 auto;
+            -webkit-text-fill-color: white !important;
+            background-clip: border-box !important;
+            -webkit-background-clip: border-box !important;
+        }
+
+        .click-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 30px rgba(154, 205, 50, 0.4) !important;
+        }
+
+        .click-button span {
+            color: white !important;
+            -webkit-text-fill-color: white !important;
+            background: none !important;
+        }
+
+        .click-emoji {
+            font-size: 3.5em;
+        }
+
+        .click-bonus {
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-item {
+            background: rgba(2, 212, 142, 0.178);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .prestige-section {
+            background: var(--card-color);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--accent-color);
+        }
+
+        .prestige-section h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+        }
+
+        .prestige-info {
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(53, 161, 11, 0.521);
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--accent-color));
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+
+        .prestige-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            border: none;
+            border-radius: 12px;
+            color: #000;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .prestige-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .prestige-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .upgrades-section {
+            background: var(--card-color);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(79, 207, 5, 0.356);
+        }
+
+        .upgrades-section h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+        }
+
+        .upgrade-btn {
+            width: 100%;
+            padding: 15px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .upgrade-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .upgrade-btn:active {
+            transform: translateY(0);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--success-color);
+            color: #000;
+            padding: 15px 25px;
+            border-radius: 12px;
+            font-weight: bold;
+            z-index: 1000;
+            transition: transform 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            flex: 1;
+        }
+
+        footer {
+            margin-top: auto;
+            background-color: #051646 !important;
+            width: 100% !important;
+            padding: 20px 0 !important;
+            text-align: center;
+            border-top: 2px solid #FFD700;
+        }
+
+        footer p {
+            margin: 5px 0;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 0.3s ease-in-out;
+        }
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .click-button {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .score {
+                font-size: 3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notification" id="notification"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>💥 КВА КЛИКЕР</h1>
+            <p>Кликай, улучшай, достигай престижа! 🚀</p>
+        </div>
+
+        <div class="score-container">
+            <div class="score-label">Ваш счет:</div>
+            <div class="score" id="score">0</div>
+        </div>
+
+        <div class="click-area">
+            <button class="click-button" id="clickButton">
+                <span class="click-emoji">🐸</span>
+                <span>КВАКАЙ!</span>
+                <span class="click-bonus" id="clickBonus">+1</span>
+            </button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div>💪 Сила квака</div>
+                <div id="clickPower">1</div>
+            </div>
+            <div class="stat-item">
+                <div>🤖 Авто-квакер</div>
+                <div id="autoClick">0/сек</div>
+            </div>
+            <div class="stat-item">
+                <div>🎯 Множитель квака</div>
+                <div id="multiplier">x1.0</div>
+            </div>
+            <div class="stat-item">
+                <div>⭐ Престиж бонуса</div>
+                <div id="prestigeLevel">0</div>
+            </div>
+        </div>
+
+        <div class="prestige-section">
+            <h3>🌟 СИСТЕМА ПРЕСТИЖА</h3>
+            <div class="prestige-info">
+                <div>Требуется: <span id="prestigeRequirement">1,000,000</span> 💎</div>
+                <div>Бонус: <span id="prestigeBonus">+0%</span> к доходу</div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="prestigeProgress" style="width: 0%"></div>
+            </div>
+            <button class="prestige-btn" id="prestigeButton">
+                🚀 ВЫПОЛНИТЬ ПРЕСТИЖ
+            </button>
+        </div>
+
+        <div class="upgrades-section">
+            <h3>🛠 УЛУЧШЕНИЯ</h3>
+            <button class="upgrade-btn" onclick="buyUpgrade('click', 0)">
+                <strong>💪 Ручка для кликов</strong><br>
+                <small>+1 к силе клика</small><br>
+                <small>💰 Стоимость: 10</small>
+            </button>
+            <button class="upgrade-btn" onclick="buyUpgrade('click', 1)">
+                <strong>💪 Волшебная мышка</strong><br>
+                <small>+5 к силе клика</small><br>
+                <small>💰 Стоимость: 100</small>
+            </button>
+            <button class="upgrade-btn" onclick="buyUpgrade('click', 2)">
+                <strong>💪 Квантовый кликер</strong><br>
+                <small>+50 к силе клика</small><br>
+                <small>💰 Стоимость: 10000</small>
+            </button>
+            <button class="upgrade-btn" onclick="buyUpgrade('auto', 0)">
+                <strong>🤖 Маленький бот</strong><br>
+                <small>+1 авто-клик/сек</small><br>
+                <small>💰 Стоимость: 50</small>
+            </button>
+            <button class="upgrade-btn" onclick="buyUpgrade('auto', 1)">
+                <strong>🤖 Ферма кликов</strong><br>
+                <small>+5 авто-кликов/сек</small><br>
+                <small>💰 Стоимость: 500</small>
+            </button>
+            <button class="upgrade-btn" onclick="buyUpgrade('auto', 2)">
+                <strong>🤖 ИИ кликер 100500</strong><br>
+                <small>+50 авто-кликов/сек</small><br>
+                <small>💰 Стоимость: 10000</small>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+        let gameState = {
+            score: 0,
+            clickPower: 1,
+            autoClickPower: 0,
+            bonusMultiplier: 1,
+            totalClicks: 0
+        };
+
+        let prestigeLevel = 0;
+        let prestigeBonus = 1.0;
+
+        function loadGame() {
+            const saved = localStorage.getItem('megaclickerProSave');
+            if (saved) {
+                const data = JSON.parse(saved);
+                gameState = data.gameState || gameState;
+                prestigeLevel = data.prestigeLevel || 0;
+                prestigeBonus = data.prestigeBonus || 1.0;
+            }
+        }
+
+        function saveGame() {
+            const data = {
+                gameState: gameState,
+                prestigeLevel: prestigeLevel,
+                prestigeBonus: prestigeBonus
+            };
+            localStorage.setItem('megaclickerProSave', JSON.stringify(data));
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = formatNumber(gameState.score);
+            document.getElementById('clickPower').textContent = gameState.clickPower;
+            document.getElementById('autoClick').textContent = gameState.autoClickPower + '/сек';
+            document.getElementById('multiplier').textContent = 'x' + (gameState.bonusMultiplier * prestigeBonus).toFixed(1);
+            document.getElementById('prestigeLevel').textContent = prestigeLevel;
+            document.getElementById('clickBonus').textContent = '+' + (gameState.clickPower * gameState.bonusMultiplier * prestigeBonus).toFixed(0);
+            document.getElementById('prestigeBonus').textContent = '+' + ((prestigeBonus - 1) * 100).toFixed(0) + '%';
+
+            updatePrestigeDisplay();
+        }
+
+        function updatePrestigeDisplay() {
+            const requirement = getPrestigeRequirement();
+            const progress = Math.min((gameState.score / requirement) * 100, 100);
+            
+            document.getElementById('prestigeRequirement').textContent = formatNumber(requirement);
+            document.getElementById('prestigeProgress').style.width = progress + '%';
+            
+            const prestigeBtn = document.getElementById('prestigeButton');
+            if (gameState.score >= requirement) {
+                prestigeBtn.disabled = false;
+                prestigeBtn.innerHTML = '🚀 ВЫПОЛНИТЬ ПРЕСТИЖ (+' + ((prestigeLevel + 1) * 10) + '%)';
+            } else {
+                prestigeBtn.disabled = true;
+                prestigeBtn.innerHTML = '🌟 ПРЕСТИЖ (' + progress.toFixed(1) + '%)';
+            }
+        }
+
+        document.getElementById('clickButton').addEventListener('click', function() {
+            const points = gameState.clickPower * gameState.bonusMultiplier * prestigeBonus;
+            gameState.score += points;
+            gameState.totalClicks++;
+            
+            this.classList.add('pulse');
+            setTimeout(() => this.classList.remove('pulse'), 300);
+            
+            updateDisplay();
+            saveGame();
+        });
+
+        function buyUpgrade(type, index) {
+            const upgrades = {
+                click: [
+                    { cost: 10, power: 1, name: 'Ручка для кликов' },
+                    { cost: 100, power: 5, name: 'Волшебная мышка' },
+                    { cost: 10000, power: 50, name: 'Квантовый кликер'}
+                ],
+                auto: [
+                    { cost: 50, power: 1, name: 'Маленький бот' },
+                    { cost: 500, power: 5, name: 'Ферма кликов' },
+                    { cost: 10000, power: 50, name: 'ИИ кликер 100500' }
+                ]
+            };
+            
+            const upgrade = upgrades[type][index];
+            
+            if (gameState.score >= upgrade.cost) {
+                gameState.score -= upgrade.cost;
+                if (type === 'click') {
+                    gameState.clickPower += upgrade.power;
+                } else if (type === 'auto') {
+                    gameState.autoClickPower += upgrade.power;
+                }
+                
+                showNotification('✅ ' + upgrade.name + ' куплено!');
+                updateDisplay();
+                saveGame();
+            } else {
+                showNotification('❌ Недостаточно очков!');
+            }
+        }
+
+        function getPrestigeRequirement() {
+            return 1000000 * Math.pow(2, prestigeLevel);
+        }
+
+        document.getElementById('prestigeButton').addEventListener('click', function() {
+            const requirement = getPrestigeRequirement();
+            
+            if (gameState.score >= requirement) {
+                prestigeLevel++;
+                prestigeBonus = 1.0 + (prestigeLevel * 0.10);
+                
+                gameState.score = 0;
+                gameState.clickPower = 1;
+                gameState.autoClickPower = 0;
+                gameState.bonusMultiplier = 1;
+                gameState.totalClicks = 0;
+                
+                showNotification('🎉 ПРЕСТИЖ ' + prestigeLevel + '! +' + (prestigeLevel * 10) + '% к доходу!');
+                updateDisplay();
+                saveGame();
+            }
+        });
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return Math.floor(num);
+        }
+
+        setInterval(() => {
+            if (gameState.autoClickPower > 0) {
+                const points = gameState.autoClickPower * gameState.bonusMultiplier * prestigeBonus;
+                gameState.score += points;
+                updateDisplay();
+                saveGame();
+            }
+        }, 1000);
+
+        loadGame();
+        updateDisplay();
+
+        tg.MainButton.setText("🎮 ПОДЕЛИТЬСЯ ИГРОЙ");
+        tg.MainButton.show();
+        tg.MainButton.onClick(function() {
+            tg.shareURL("https://t.me/KvaClickerGameBot?start=clicker", "Играй в Ква Кликер!");
+        });
+
+        console.log("🎮 Мега Кликер PRO запущен!");
+    </script>
+</body>
+<br>
+<hr>
+<footer>
+    <p>&copy; 2025 бот-кликер-KVA clicker.версии 2.0,все права защищены</p>
+    <p>&copy; 2025 bot-clicker-KVA clicker.version 2.0,all rights reserved</p>
+</footer>
+</html>
